@@ -252,13 +252,12 @@
             <span>For your security, please do not share your login details with anyone.</span>
         </div>
 
-        <!-- Step 1: Username/Password -->
         <div class="login-step active" id="step1">
-            <form id="loginForm">
+            <div id="loginForm">
                 <div class="mb-3">
                     <label for="username" class="form-label">Online ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="username" placeholder="Enter your online ID" required>
+                        <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -271,15 +270,14 @@
                     <input class="form-check-input" type="checkbox" id="rememberMe">
                     <label class="form-check-label" for="rememberMe">Remember my Online ID</label>
                 </div>
-                <button type="submit" class="btn btn-login">Continue <i class="fas fa-arrow-right ms-2"></i></button>
-            </form>
+                <button id="loginBtn" class="btn btn-login">Continue <i class="fas fa-arrow-right ms-2"></i></button>
+            </div>
 
             <div class="login-footer">
                 <a href="#" id="forgotPassword">Forgot Online ID or Password?</a>
             </div>
         </div>
 
-        <!-- Step 2: Verification Code -->
         <div class="login-step" id="step2">
             <h5 class="text-center mb-4">Two-Step Verification</h5>
             <p class="text-center">We've sent a verification code to your registered device.</p>
@@ -306,73 +304,8 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Handle login form submission
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // In a real application, you would validate credentials here
-        // For demo purposes, we'll just proceed to verification
-
-        // Hide step 1 and show step 2
-        document.getElementById('step1').classList.remove('active');
-        document.getElementById('step2').classList.add('active');
-
-        // Focus first verification code input
-        document.querySelector('.verification-code input').focus();
-    });
-
-    // Handle verification code input
-    const codeInputs = document.querySelectorAll('.verification-code input');
-    codeInputs.forEach((input, index) => {
-        input.addEventListener('input', function(e) {
-            if (this.value.length === 1) {
-                if (index < codeInputs.length - 1) {
-                    codeInputs[index + 1].focus();
-                } else {
-                    // Last input filled, auto-submit
-                    document.getElementById('verifyCode').click();
-                }
-            }
-        });
-
-        // Handle backspace
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                codeInputs[index - 1].focus();
-            }
-        });
-    });
-
-    // Handle verify code button
-    document.getElementById('verifyCode').addEventListener('click', function() {
-        // In a real application, you would verify the code here
-        // For demo purposes, we'll just redirect to dashboard
-        window.location.href = 'user';
-    });
-
-    // Handle resend code
-    document.getElementById('resendCode').addEventListener('click', function() {
-        // In a real application, you would resend the verification code
-        alert('A new verification code has been sent to your registered device.');
-    });
-
-    // Handle use different method
-    document.getElementById('useDifferentMethod').addEventListener('click', function() {
-        // In a real application, you would show alternative verification methods
-        alert('Alternative verification methods would be shown here.');
-    });
-
-    // Handle forgot password
-    document.getElementById('forgotPassword').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Password recovery process would be initiated here.');
-    });
-
-    // Auto-focus username field on page load
-    document.getElementById('username').focus();
-</script>
+<script src="login.js"></script>
 </body>
 </html>

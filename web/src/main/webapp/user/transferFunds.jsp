@@ -501,7 +501,7 @@
                 </a>
             </li>
             <li class="nav-item mt-auto">
-                <a class="nav-link" href="logout.jsp">
+                <a class="nav-link" href="${pageContext.request.contextPath}/logout">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>

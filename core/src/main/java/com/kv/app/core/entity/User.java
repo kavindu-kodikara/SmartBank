@@ -1,5 +1,7 @@
 package com.kv.app.core.entity;
 
+import com.kv.app.core.encryption.EncryptConverter;
+import com.kv.app.core.encryption.EncryptUtil;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -8,7 +10,8 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @NamedQueries({
-        @NamedQuery(name = "User.FindAll",query = "select u from User u")
+        @NamedQuery(name = "User.FindAll",query = "select u from User u"),
+        @NamedQuery(name = "User.findByUserName",query = "select u from User u where u.username =:username")
 })
 public class User implements Serializable {
 
@@ -16,23 +19,25 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "fname")
+    @Column(name = "fname") @Convert(converter = EncryptConverter.class)
     private String fname;
-    @Column(name = "lname")
+    @Column(name = "lname") @Convert(converter = EncryptConverter.class)
     private String lname;
-    @Column(name = "email",unique = true)
+    @Column(name = "email",unique = true) @Convert(converter = EncryptConverter.class)
     private String email;
-    @Column(name = "mobile")
+    @Column(name = "mobile") @Convert(converter = EncryptConverter.class)
     private String mobile;
-    @Column(name = "nic",unique = true)
+    @Column(name = "nic",unique = true) @Convert(converter = EncryptConverter.class)
     private String nic;
-    @Column(name = "username")
+    @Column(name = "username") @Convert(converter = EncryptConverter.class)
     private String username;
     @Column(name = "password")
     private String password;
     @Column(name = "userType")
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.USER;
+    @Column(name = "verificationCode")
+    private String verificationCode;
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Account> accounts;
 
@@ -126,5 +131,13 @@ public class User implements Serializable {
 
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }
