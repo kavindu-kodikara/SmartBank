@@ -556,7 +556,7 @@
                         <h4 class="mb-4 text-center" style="color: var(--admin-primary);">
                             <i class="fas fa-user-plus me-2"></i> Register New User
                         </h4>
-                        <form id="userRegistrationForm">
+                        <div id="userRegistrationForm">
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="firstName" class="form-label">First Name</label>
@@ -580,30 +580,15 @@
                                 <input type="text" class="form-control" id="nic" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Account Type</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="accountType" id="checkingAccount" value="checking" checked>
-                                    <label class="form-check-label" for="checkingAccount">
-                                        Checking Account
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="accountType" id="savingsAccount" value="savings">
-                                    <label class="form-check-label" for="savingsAccount">
-                                        Savings Account
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="initialDeposit" class="form-label">Initial Deposit (Optional)</label>
+                                <label for="initialDeposit" class="form-label">Initial Deposit</label>
                                 <input type="number" class="form-control" id="initialDeposit" min="0" step="0.01">
                             </div>
                             <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-admin px-5">
+                                <button type="submit" class="btn btn-admin px-5" id="registerBtn">
                                     <i class="fas fa-user-plus me-2"></i> Register User
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -847,57 +832,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Toggle sidebar on mobile
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('show');
-    });
-
-    // Initialize tab functionality
-    const triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'))
-    triggerTabList.forEach(function (triggerEl) {
-        const tabTrigger = new bootstrap.Tab(triggerEl)
-
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
-        })
-    })
-
-    // Initialize charts
-    const ctx = document.getElementById('activityChart').getContext('2d');
-    const activityChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [
-                {
-                    label: 'New Users',
-                    data: [120, 190, 170, 220, 180, 210],
-                    borderColor: 'rgba(106, 17, 203, 1)',
-                    backgroundColor: 'rgba(106, 17, 203, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Transactions',
-                    data: [350, 420, 380, 500, 450, 480],
-                    borderColor: 'rgba(37, 117, 252, 1)',
-                    backgroundColor: 'rgba(37, 117, 252, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
+<script src="admin.js"></script>

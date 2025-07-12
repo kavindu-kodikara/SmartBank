@@ -11,7 +11,9 @@ import java.util.List;
 @Table(name = "users")
 @NamedQueries({
         @NamedQuery(name = "User.FindAll",query = "select u from User u"),
-        @NamedQuery(name = "User.findByUserName",query = "select u from User u where u.username =:username")
+        @NamedQuery(name = "User.findByUserName",query = "select u from User u where u.username =:username"),
+        @NamedQuery(name = "User.findByNic",query = "select u from User u where u.nic =:nic"),
+        @NamedQuery(name = "User.findByEmail",query = "select u from User u where u.email =:email")
 })
 public class User implements Serializable {
 
@@ -44,13 +46,12 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(String fname, String lname, String email, String mobile, String nic, List<Account> accounts) {
+    public User(String fname, String lname, String email, String mobile, String nic) {
         this.fname = fname;
         this.lname = lname;
         this.email = email;
         this.mobile = mobile;
         this.nic = nic;
-        this.accounts = accounts;
     }
 
     public Long getId() {

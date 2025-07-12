@@ -1,4 +1,11 @@
-<%--
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="com.kv.app.core.entity.User" %>
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="javax.naming.NamingException" %>
+<%@ page import="com.kv.app.core.service.user.UserAccountService" %>
+<%@ page import="com.kv.app.core.entity.Account" %>
+<%@ page import="java.util.List" %><%--
   Created by IntelliJ IDEA.
   User: kv
   Date: 7/7/2025
@@ -470,11 +477,15 @@
         </div>
     </nav>
 
+    <%
+        User user = (User) request.getSession().getAttribute("user");
+    %>
+
     <!-- Dashboard Header -->
     <div class="dashboard-header fade-in">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 style="font-weight: 700;">Welcome back, John</h1>
+                <h1 style="font-weight: 700;">Welcome back, <%= user.getFname() %></h1>
                 <p class="mb-0">Last login: Today at 08:47 from your mobile device</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -487,36 +498,53 @@
 
     <!-- Account Summary -->
     <div class="row mb-4">
+
+
+            <%
+
+                    InitialContext ic = new InitialContext();
+                    UserAccountService userAccountService = (UserAccountService) ic.lookup("java:global/smart-bank-ear/user-module/UserAccountSessionBean!com.kv.app.core.service.user.UserAccountService");
+                    List<Account> accountList = userAccountService.getAccounts(user.getId());
+                    pageContext.setAttribute("accountList", accountList);
+
+            %>
+
+            <c:forEach var="account" items="${accountList}">
         <div class="col-md-6 mb-4">
-            <div class="account-card primary floating">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h5>Primary Checking</h5>
-                        <p class="mb-2">•••• •••• •••• 4567</p>
-                        <h2 class="balance primary">$12,456.78</h2>
-                        <p class="mb-0"><i class="fas fa-arrow-up me-1"></i> 2.4% from last month</p>
-                    </div>
-                    <div>
-                        <span class="account-badge">Active</span>
+                <div class="account-card primary floating">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>Savings Checking</h5>
+                            <p class="mb-2">•••• •••• •••• ${account.accountNumber.substring(account.accountNumber.length() - 4)}</p>
+                            <h2 class="balance primary">Rs. <fmt:formatNumber value="${account.balance}" pattern="#,##0.00" /></h2>
+                            <p class="mb-0"><i class="fas fa-arrow-up me-1"></i> 2.4% from last month</p>
+                        </div>
+                        <div>
+                            <span class="account-badge">Active</span>
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="account-card savings floating" style="animation-delay: 0.2s;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h5>Savings Account</h5>
-                        <p class="mb-2">•••• •••• •••• 8910</p>
-                        <h2 class="balance savings">$24,789.32</h2>
-                        <p class="mb-0"><i class="fas fa-arrow-up me-1"></i> 3.7% interest applied</p>
-                    </div>
-                    <div>
-                        <span class="account-badge">Active</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </c:forEach>
+
+
+
+<%--        <div class="col-md-6 mb-4">--%>
+<%--            <div class="account-card savings floating" style="animation-delay: 0.2s;">--%>
+<%--                <div class="d-flex justify-content-between align-items-start">--%>
+<%--                    <div>--%>
+<%--                        <h5>Savings Account</h5>--%>
+<%--                        <p class="mb-2">•••• •••• •••• 8910</p>--%>
+<%--                        <h2 class="balance savings">$24,789.32</h2>--%>
+<%--                        <p class="mb-0"><i class="fas fa-arrow-up me-1"></i> 3.7% interest applied</p>--%>
+<%--                    </div>--%>
+<%--                    <div>--%>
+<%--                        <span class="account-badge">Active</span>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </div>--%>
+
     </div>
 
     <!-- Quick Actions -->

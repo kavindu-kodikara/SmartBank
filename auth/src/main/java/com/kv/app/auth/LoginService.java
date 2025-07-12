@@ -44,10 +44,12 @@ public class LoginService {
         int code = 100000 + random.nextInt(900000);
 
         User user = getUser(username);
+        System.out.println(username+" "+user.getUsername());
+        System.out.println(code);
         user.setVerificationCode(String.valueOf(code));
         em.persist(user);
 
-        OTPEmail mail = new OTPEmail(user.getEmail(), String.valueOf(code));
-        MailServiceProvider.getInstance().sendMail(mail);
+//        OTPEmail mail = new OTPEmail(user.getEmail(), String.valueOf(code));
+//        MailServiceProvider.getInstance().sendMail(mail);
     }
 }

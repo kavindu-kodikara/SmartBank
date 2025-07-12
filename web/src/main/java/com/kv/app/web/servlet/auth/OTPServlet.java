@@ -2,8 +2,10 @@ package com.kv.app.web.servlet.auth;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kv.app.core.entity.User;
 import com.kv.app.core.entity.UserType;
 import com.kv.app.core.service.OTPService;
+import com.kv.app.core.service.user.UserService;
 import jakarta.ejb.EJB;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.servlet.ServletException;
@@ -20,6 +22,9 @@ public class OTPServlet extends HttpServlet {
 
     @EJB
     private OTPService otpService;
+
+    @EJB
+    UserService userService;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -39,6 +44,8 @@ public class OTPServlet extends HttpServlet {
 
         if(isValid) {
             req.getSession().setAttribute("verifiedUser",result);
+             User user = userService.findByUsername(result.getCallerPrincipal().getName());
+             req.getSession().setAttribute("user", user);
             resp.getWriter().write(gson.toJson(Map.of(
                     "success", true,
                     "redirect", req.getContextPath() + endpoint

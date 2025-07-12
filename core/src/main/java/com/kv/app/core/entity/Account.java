@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Account.findAllByUser",query = "select a from Account a where a.user =:user")
+})
 public class Account implements Serializable {
 
     @Id

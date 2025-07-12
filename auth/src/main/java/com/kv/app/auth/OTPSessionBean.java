@@ -2,12 +2,11 @@ package com.kv.app.auth;
 
 import com.kv.app.core.entity.User;
 import com.kv.app.core.service.OTPService;
-import com.kv.app.core.service.UserService;
+import com.kv.app.core.service.user.UserService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 import java.util.Map;
-import java.util.Objects;
 
 @Stateless
 public class OTPSessionBean implements OTPService {

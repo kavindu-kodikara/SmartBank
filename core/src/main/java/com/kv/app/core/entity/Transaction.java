@@ -29,6 +29,21 @@ public class Transaction implements Serializable {
     public Transaction() {
     }
 
+    public Transaction(Date timestamp, Double amount, TransactionType transactionType, Account toAccount) {
+        this.timestamp = timestamp;
+        this.amount = amount;
+        this.transactionType = transactionType;
+        this.toAccount = toAccount;
+    }
+
+    public Transaction(Date timestamp, Double amount, TransactionType transactionType, Account fromAccount, Account toAccount) {
+        this.timestamp = timestamp;
+        this.amount = amount;
+        this.transactionType = transactionType;
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
+    }
+
     public Long getId() {
         return id;
     }
