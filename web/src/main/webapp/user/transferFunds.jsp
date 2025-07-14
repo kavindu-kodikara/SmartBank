@@ -1,4 +1,14 @@
-<%--
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="com.kv.app.core.service.user.UserAccountService" %>
+<%@ page import="com.kv.app.core.entity.Account" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.kv.app.core.entity.User" %>
+<%@ page import="javax.naming.NamingException" %>
+<%@ page import="com.kv.app.core.service.user.UserTransactionHistoryService" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="com.kv.app.core.entity.Transaction" %><%--
   Created by IntelliJ IDEA.
   User: kv
   Date: 7/7/2025
@@ -542,15 +552,37 @@
             <div class="transfer-form fade-in">
                 <h4 class="mb-4"><i class="fas fa-paper-plane me-2 text-primary"></i> New Transfer</h4>
 
+                <%
+                    User user = (User) request.getSession().getAttribute("user");
+                    InitialContext ic = new InitialContext();
+
+                    try {
+
+                        UserAccountService userAccountService = null;
+                        userAccountService = (UserAccountService) ic.lookup("java:global/smart-bank-ear/user-module/UserAccountSessionBean!com.kv.app.core.service.user.UserAccountService");
+                        List<Account> accountList = userAccountService.getAccounts(user.getId());
+                        pageContext.setAttribute("accountList", accountList);
+
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                %>
+
                 <div id="transferForm">
                     <!-- From Account -->
                     <div class="mb-4">
                         <label for="fromAccount" class="form-label">From Account</label>
-                        <select class="form-select" id="fromAccount" required>
-                            <option value="" selected disabled>Select an account</option>
-                            <option value="checking">Primary Checking •••• 4567 ($12,456.78)</option>
-                            <option value="savings">Savings Account •••• 8910 ($24,789.32)</option>
+                        <select class="form-select" id="fromAccount" required >
+                            <option value="0" selected disabled>Select an account</option>
+                            <c:forEach var="account" items="${accountList}">
+                                <option value="${account.accountNumber}">
+                                    Savings Checking •••• ${account.accountNumber.substring(account.accountNumber.length() - 4)}
+                                    (Rs. <fmt:formatNumber value="${account.balance}" pattern="#,##0.00" />)
+                                </option>
+                            </c:forEach>
                         </select>
+
                     </div>
 
                     <!-- Transfer Type -->
@@ -578,32 +610,25 @@
                     <div class="mb-4" id="internalRecipientSection">
                         <label for="toAccount" class="form-label">To Account</label>
                         <select class="form-select" id="toAccount">
-                            <option value="" selected disabled>Select an account</option>
-                            <option value="savings">Savings Account •••• 8910</option>
-                            <option value="checking">Primary Checking •••• 4567</option>
+                            <option value="0" selected disabled>Select an account</option>
+                            <c:forEach var="account" items="${accountList}">
+                                <option value="${account.accountNumber}">
+                                    Savings Checking •••• ${account.accountNumber.substring(account.accountNumber.length() - 4)}
+                                    (Rs. <fmt:formatNumber value="${account.balance}" pattern="#,##0.00" />)
+                                </option>
+                            </c:forEach>
                         </select>
+
                     </div>
 
                     <div class="mb-4 d-none" id="externalRecipientSection">
                         <label for="externalAccount" class="form-label">Recipient Details</label>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <input type="text" class="form-control" id="accountNumber" placeholder="Account Number">
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="routingNumber" placeholder="Routing Number">
                             </div>
                             <div class="col-12">
                                 <input type="text" class="form-control" id="recipientName" placeholder="Recipient Name">
-                            </div>
-                            <div class="col-12">
-                                <select class="form-select" id="bankName">
-                                    <option value="" selected disabled>Select Bank</option>
-                                    <option value="chase">Chase Bank</option>
-                                    <option value="boa">Bank of America</option>
-                                    <option value="wells">Wells Fargo</option>
-                                    <option value="other">Other Bank</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -615,17 +640,16 @@
                             <span class="input-group-text">Rs</span>
                             <input type="number" class="form-control" id="amount" placeholder="0.00" min="0.01" step="0.01" required>
                         </div>
-                        <small class="text-muted">Available balance: $12,456.78</small>
                     </div>
 
                     <!-- Description -->
                     <div class="mb-4">
-                        <label for="description" class="form-label">Description (Optional)</label>
+                        <label for="description" class="form-label">Description</label>
                         <input type="text" class="form-control" id="description" placeholder="e.g. Rent payment, Gift, etc.">
                     </div>
 
                     <!-- Schedule Options -->
-                    <div class="mb-4">
+                    <div class="mb-4 d-none" id="scheduleTransferBtn">
                         <label class="form-label">Schedule Transfer</label>
                         <div class="d-flex gap-3">
                             <div class="form-check flex-grow-1">
@@ -635,7 +659,7 @@
                                     <small class="d-block text-muted mt-1">Processed immediately</small>
                                 </label>
                             </div>
-                            <div class="form-check flex-grow-1">
+                            <div class="form-check flex-grow-1 " >
                                 <input class="form-check-input" type="radio" name="scheduleType" id="transferLater" value="later">
                                 <label class="form-check-label w-100 p-3 rounded border" for="transferLater">
                                     <i class="fas fa-calendar-alt me-2"></i> Schedule for Later
@@ -663,7 +687,7 @@
                         <button type="button" class="btn btn-outline-primary me-md-2">
                             <i class="fas fa-times me-1"></i> Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button id="transferBtn" class="btn btn-primary">
                             <i class="fas fa-paper-plane me-1"></i> Send Transfer
                         </button>
                     </div>
@@ -719,133 +743,63 @@
                 </a>
             </div>
             <div class="card-body">
-                <div class="transaction-item credit">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">Transfer to Savings</h6>
-                            <small>Today at 10:15 • Internal Transfer</small>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold text-success">+$500.00</div>
-                            <small class="text-muted">Completed</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="transaction-item debit">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">Payment to Sarah Johnson</h6>
-                            <small>Yesterday at 14:30 • External Transfer</small>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold text-danger">-$250.00</div>
-                            <small class="text-muted">Completed</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="transaction-item debit">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">Rent Payment</h6>
-                            <small>May 1, 2023 at 08:00 • Scheduled Transfer</small>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold text-danger">-$1,200.00</div>
-                            <small class="text-muted">Completed</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="transaction-item credit">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">Transfer from Checking</h6>
-                            <small>April 28, 2023 at 16:45 • Internal Transfer</small>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold text-success">+$1,000.00</div>
-                            <small class="text-muted">Completed</small>
-                        </div>
-                    </div>
-                </div>
+
+                <%
+
+                    UserTransactionHistoryService userTransactionHistoryService = null;
+                    try {
+                        userTransactionHistoryService = (UserTransactionHistoryService) ic.lookup("java:global/smart-bank-ear/user-module/TransactionHistorySessionBean!com.kv.app.core.service.user.UserTransactionHistoryService");
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Map<String,Object> dataMap = userTransactionHistoryService.getRecentTransactions(user.getId());
+                    List<Transaction> transactionList = (List<Transaction>) dataMap.get("transactionList");
+                    String accountNumber = (String) dataMap.get("accountId");
+                    pageContext.setAttribute("transactionList", transactionList);
+                    pageContext.setAttribute("accountNumber", accountNumber);
+
+                %>
+
+                <c:forEach var="transaction" items="${transactionList}">
+                    <c:choose>
+                        <c:when test="${transaction.toAccount.accountNumber == accountNumber}">
+                            <div class="transaction-item credit">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${transaction.description}</h6>
+                                        <small><fmt:formatDate value="${transaction.timestamp}" pattern="MMM dd ': at' HH:mm" /> • ${transaction.fromAccount.user.fname}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-success">+Rs. <fmt:formatNumber value="${transaction.amount}" pattern="#,##0.00" /></div>
+                                        <small class="text-muted">Completed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="transaction-item debit">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${transaction.description}</h6>
+                                        <small><fmt:formatDate value="${transaction.timestamp}" pattern="MMM dd ': at' HH:mm" /> • ${transaction.toAccount.user.fname}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-danger">-Rs. <fmt:formatNumber value="${transaction.amount}" pattern="#,##0.00" /></div>
+                                        <small class="text-muted">Completed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+
+                </c:forEach>
+
             </div>
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Toggle sidebar on mobile
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('show');
-    });
-
-    // Transfer type toggle
-    const internalTransfer = document.getElementById('internalTransfer');
-    const externalTransfer = document.getElementById('externalTransfer');
-    const internalRecipientSection = document.getElementById('internalRecipientSection');
-    const externalRecipientSection = document.getElementById('externalRecipientSection');
-
-    internalTransfer.addEventListener('change', function() {
-        if (this.checked) {
-            internalRecipientSection.classList.remove('d-none');
-            externalRecipientSection.classList.add('d-none');
-        }
-    });
-
-    externalTransfer.addEventListener('change', function() {
-        if (this.checked) {
-            internalRecipientSection.classList.add('d-none');
-            externalRecipientSection.classList.remove('d-none');
-        }
-    });
-
-    // Schedule options toggle
-    const transferNow = document.getElementById('transferNow');
-    const transferLater = document.getElementById('transferLater');
-    const scheduleDateSection = document.getElementById('scheduleDateSection');
-
-    transferNow.addEventListener('change', function() {
-        if (this.checked) {
-            scheduleDateSection.classList.add('d-none');
-        }
-    });
-
-    transferLater.addEventListener('change', function() {
-        if (this.checked) {
-            scheduleDateSection.classList.remove('d-none');
-            // Set min date to tomorrow
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const minDate = tomorrow.toISOString().split('T')[0];
-            document.getElementById('transferDate').min = minDate;
-        }
-    });
-
-    // Form submission
-    document.getElementById('transferForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Here you would normally handle the form submission
-        alert('Transfer submitted successfully!');
-        // Reset form
-        this.reset();
-        internalRecipientSection.classList.remove('d-none');
-        externalRecipientSection.classList.add('d-none');
-        scheduleDateSection.classList.add('d-none');
-    });
-
-    // Add animation to form elements
-    const formElements = document.querySelectorAll('.transfer-form .form-control, .transfer-form .form-select, .transfer-form .form-check-input');
-    formElements.forEach((element, index) => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(10px)';
-        element.style.transition = `all 0.3s ease ${index * 0.05}s`;
-
-        setTimeout(() => {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }, 100);
-    });
-</script>
+<script src="js/transferFunds.js"></script>
 </body>
 </html>

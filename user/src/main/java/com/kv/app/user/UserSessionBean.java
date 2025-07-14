@@ -70,7 +70,7 @@ public class UserSessionBean implements UserService {
 
                 Account account = em.find(Account.class, String.valueOf(accNumber));
 
-                em.persist(new Transaction(new Date(), Double.parseDouble(userDto.getInitialDeposit()), TransactionType.DEPOSIT, account));
+                em.persist(new Transaction(new Date(), Double.parseDouble(userDto.getInitialDeposit()),TransactionType.DEPOSIT,"Initial deposit", account));
 
                 AccountSetupEmail mail = new AccountSetupEmail(user.getEmail(), String.valueOf(user.getId()));
                 MailServiceProvider.getInstance().sendMail(mail);

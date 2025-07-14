@@ -6,6 +6,19 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Transaction.findRecentByUserId",
+                query = "SELECT t FROM Transaction t " +
+                        "WHERE t.fromAccount.accountNumber = :accountId OR t.toAccount.accountNumber = :accountId " +
+                        "ORDER BY t.timestamp DESC"),
+        @NamedQuery(
+                name = "Transaction.findByAccountNumber",
+                query = "SELECT t FROM Transaction t " +
+                        "WHERE t.fromAccount.accountNumber = :accNumber OR t.toAccount.accountNumber = :accNumber " +
+                        "ORDER BY t.timestamp ASC"
+        )
+
+})
 public class Transaction implements Serializable {
 
     @Id
@@ -19,6 +32,8 @@ public class Transaction implements Serializable {
     @Column(name = "transactionType")
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne
     private Account fromAccount;
@@ -29,19 +44,21 @@ public class Transaction implements Serializable {
     public Transaction() {
     }
 
-    public Transaction(Date timestamp, Double amount, TransactionType transactionType, Account toAccount) {
+    public Transaction(Date timestamp, Double amount, TransactionType transactionType,String description, Account toAccount) {
         this.timestamp = timestamp;
         this.amount = amount;
         this.transactionType = transactionType;
         this.toAccount = toAccount;
+        this.description = description;
     }
 
-    public Transaction(Date timestamp, Double amount, TransactionType transactionType, Account fromAccount, Account toAccount) {
+    public Transaction(Date timestamp, Double amount, TransactionType transactionType,String description, Account fromAccount, Account toAccount) {
         this.timestamp = timestamp;
         this.amount = amount;
         this.transactionType = transactionType;
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
+        this.description = description;
     }
 
     public Long getId() {
@@ -90,5 +107,13 @@ public class Transaction implements Serializable {
 
     public void setToAccount(Account toAccount) {
         this.toAccount = toAccount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

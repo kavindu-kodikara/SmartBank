@@ -1,4 +1,18 @@
-<%--
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="com.kv.app.core.service.user.UserAccountService" %>
+<%@ page import="com.kv.app.core.entity.Account" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.kv.app.core.entity.User" %>
+<%@ page import="javax.naming.NamingException" %>
+<%@ page import="com.kv.app.core.service.user.UserTransactionHistoryService" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="com.kv.app.core.entity.Transaction" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="com.google.gson.Gson" %><%--
   Created by IntelliJ IDEA.
   User: kv
   Date: 7/7/2025
@@ -553,62 +567,51 @@
         </div>
     </div>
 
-    <!-- Transaction Filters -->
-    <div class="transaction-filter fade-in">
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <label for="accountSelect" class="form-label">Account</label>
-                <select class="form-select" id="accountSelect">
-                    <option selected>All Accounts</option>
-                    <option>Primary Checking (••••4567)</option>
-                    <option>Savings Account (••••8910)</option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="typeSelect" class="form-label">Transaction Type</label>
-                <select class="form-select" id="typeSelect">
-                    <option selected>All Types</option>
-                    <option>Deposits</option>
-                    <option>Withdrawals</option>
-                    <option>Transfers</option>
-                    <option>Payments</option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="dateFrom" class="form-label">From Date</label>
-                <input type="date" class="form-control" id="dateFrom">
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="dateTo" class="form-label">To Date</label>
-                <input type="date" class="form-control" id="dateTo">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 d-flex justify-content-end">
-                <button class="btn btn-primary me-2">
-                    <i class="fas fa-filter me-1"></i> Apply Filters
-                </button>
-                <button class="btn btn-outline-primary">
-                    <i class="fas fa-sync-alt me-1"></i> Reset
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Transaction History -->
     <div class="card fade-in" style="animation-delay: 0.1s;">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i> Transaction History</h5>
+
+            <%
+                User user = (User) request.getSession().getAttribute("user");
+                InitialContext ic = new InitialContext();
+
+                try {
+
+                    UserAccountService userAccountService = null;
+                    userAccountService = (UserAccountService) ic.lookup("java:global/smart-bank-ear/user-module/UserAccountSessionBean!com.kv.app.core.service.user.UserAccountService");
+                    List<Account> accountList = userAccountService.getAccounts(user.getId());
+                    pageContext.setAttribute("accountList", accountList);
+
+                } catch (NamingException e) {
+                    throw new RuntimeException(e);
+                }
+
+            %>
+
             <div>
-                <button class="btn btn-primary btn-sm me-2">
-                    <i class="fas fa-download me-1"></i> Export
-                </button>
-                <button class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-print me-1"></i> Print
-                </button>
+                <select class="form-select" id="fromAccount" required >
+                    <c:forEach var="account" items="${accountList}">
+                        <option value="${account.accountNumber}">
+                            Savings Checking •••• ${account.accountNumber.substring(account.accountNumber.length() - 4)}
+                            (Rs. <fmt:formatNumber value="${account.balance}" pattern="#,##0.00" />)
+                        </option>
+                    </c:forEach>
+                </select>
             </div>
         </div>
-        <div class="card-body">
+        <%
+
+            UserTransactionHistoryService userTransactionHistoryService = null;
+            try {
+                userTransactionHistoryService = (UserTransactionHistoryService) ic.lookup("java:global/smart-bank-ear/user-module/TransactionHistorySessionBean!com.kv.app.core.service.user.UserTransactionHistoryService");
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            }
+            request.setAttribute("transactionJson", userTransactionHistoryService.getAllTransactions(user.getId()));
+
+        %>
+        <div class="card-body" id="transactionContainer">
             <!-- Today's Transactions -->
             <div class="transaction-date-group">
                 <h6 class="transaction-date-header">Today, May 15, 2023</h6>
@@ -785,6 +788,100 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    const transactionData = ${transactionJson};
+    console.log(transactionData);
+
+    document.getElementById("fromAccount").addEventListener("change", function () {
+        loadTransactionData(this.value);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const defaultAccount = document.getElementById("fromAccount").value;
+        loadTransactionData(defaultAccount);
+    });
+
+    function loadTransactionData(selectedAccount){
+        const container = document.getElementById("transactionContainer");
+        container.innerHTML = "";
+
+        if (!transactionData[selectedAccount]) {
+            container.innerHTML = "<p>No transactions found.</p>";
+            return;
+        }
+
+        const accountTransactions = transactionData[selectedAccount];
+
+        Object.keys(accountTransactions).forEach(date => {
+            const groupDiv = document.createElement("div");
+            groupDiv.classList.add("transaction-date-group");
+
+            const header = document.createElement("h6");
+            header.classList.add("transaction-date-header");
+            header.textContent = date;
+            groupDiv.appendChild(header);
+
+            accountTransactions[date].forEach(tx => {
+                const typeClass = tx.toAccount == selectedAccount ? "credit" : "debit";
+                const amountPrefix = typeClass == "credit" ? "+" : "-";
+                const amountColor = typeClass == "credit" ? "text-success" : "text-danger";
+
+                let iconHtml = "";
+
+                if (tx.transactionType === "TRANSFER") {
+                    iconHtml = '<i class="fas fa-exchange-alt"></i>';
+                } else {
+                    iconHtml = '<i class="fas fa-dollar-sign"></i>';
+                }
+
+                let userHtml = "";
+
+                if (tx.toAccount == selectedAccount) {
+                    userHtml = '<small>From '+tx.fromUserFname+' • <span class="badge transaction-type-badge badge-external">' + tx.transactionType + '</span></small>';
+                } else {
+                    userHtml = '<small>To '+tx.toUserFname+' • <span class="badge transaction-type-badge badge-external">' + tx.transactionType + '</span></small>';
+                }
+
+                let typeHtml = typeClass === "credit" ? '<div class="transaction-item credit">' : '<div class="transaction-item debit">';
+
+                const transactionHtml =
+                    '<div class="transaction-item '+typeClass+'">' +
+                    '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div class="transaction-details">' +
+                    '<div class="transaction-icon '+typeClass+'">' +
+                    iconHtml +
+                    '</div>' +
+                    '<div>' +
+                    '<h6 class="mb-1">' + tx.description + '</h6>' +
+                    userHtml +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                    '<div class="fw-bold '+amountColor+'">Rs. ' + amountPrefix + tx.amount + '.00</div>' +
+                    '<small class="text-muted">Completed • '+ formatTime(tx.timestamp) +'</small>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                groupDiv.innerHTML += transactionHtml;
+            });
+
+
+            container.appendChild(groupDiv);
+        });
+    }
+
+    // Helper to format timestamp to "HH:MM AM/PM"
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12;
+        return hours+":"+minutes+" "+ampm;
+    }
+</script>
+
+<script>
     // Toggle sidebar on mobile
     document.getElementById('sidebarToggle').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('show');
@@ -807,28 +904,7 @@
         });
     });
 
-    // Set default dates for filter
-    document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date();
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 30);
 
-        // Format dates as YYYY-MM-DD
-        const formatDate = (date) => {
-            const d = new Date(date);
-            let month = '' + (d.getMonth() + 1);
-            let day = '' + d.getDate();
-            const year = d.getFullYear();
-
-            if (month.length < 2) month = '0' + month;
-            if (day.length < 2) day = '0' + day;
-
-            return [year, month, day].join('-');
-        };
-
-        document.getElementById('dateFrom').value = formatDate(thirtyDaysAgo);
-        document.getElementById('dateTo').value = formatDate(today);
-    });
 
     // Add ripple effect to buttons
     const buttons = document.querySelectorAll('.btn');

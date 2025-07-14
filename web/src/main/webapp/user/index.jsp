@@ -5,7 +5,11 @@
 <%@ page import="javax.naming.NamingException" %>
 <%@ page import="com.kv.app.core.service.user.UserAccountService" %>
 <%@ page import="com.kv.app.core.entity.Account" %>
-<%@ page import="java.util.List" %><%--
+<%@ page import="java.util.List" %>
+<%@ page import="com.kv.app.core.service.user.UserTransactionHistoryService" %>
+<%@ page import="com.kv.app.core.entity.Transaction" %>
+<%@ page import="java.util.Map" %>
+<%--
   Created by IntelliJ IDEA.
   User: kv
   Date: 7/7/2025
@@ -609,54 +613,60 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <div class="transaction-item credit">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Salary Deposit</h6>
-                                <small>Today at 09:00 • Acme Corp</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-success">+$4,500.00</div>
-                                <small class="text-muted">Completed</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transaction-item debit">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Mortgage Payment</h6>
-                                <small>Today at 08:30 • FutureHomes</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-danger">-$1,250.00</div>
-                                <small class="text-muted">Completed</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transaction-item debit">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Grocery Store</h6>
-                                <small>Yesterday at 18:45 • Fresh Market</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-danger">-$87.43</div>
-                                <small class="text-muted">Completed</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transaction-item credit">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Interest Payment</h6>
-                                <small>Yesterday at 00:00 • Smart Bank</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-success">+$23.18</div>
-                                <small class="text-muted">Automated</small>
-                            </div>
-                        </div>
-                    </div>
+
+                    <%
+
+                        UserTransactionHistoryService userTransactionHistoryService = null;
+                        try {
+                            userTransactionHistoryService = (UserTransactionHistoryService) ic.lookup("java:global/smart-bank-ear/user-module/TransactionHistorySessionBean!com.kv.app.core.service.user.UserTransactionHistoryService");
+                        } catch (NamingException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Map<String,Object> dataMap = userTransactionHistoryService.getRecentTransactions(user.getId());
+                        List<Transaction> transactionList = (List<Transaction>) dataMap.get("transactionList");
+                        String accountNumber = (String) dataMap.get("accountId");
+                        pageContext.setAttribute("transactionList", transactionList);
+                        pageContext.setAttribute("accountNumber", accountNumber);
+
+                    %>
+
+                    <c:forEach var="transaction" items="${transactionList}">
+                        <c:choose>
+                            <c:when test="${transaction.toAccount.accountNumber == accountNumber}">
+                                <div class="transaction-item credit">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">${transaction.description}</h6>
+                                            <small><fmt:formatDate value="${transaction.timestamp}" pattern="MMM dd ': at' HH:mm" /> • ${transaction.fromAccount.user.fname}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-success">+Rs. <fmt:formatNumber value="${transaction.amount}" pattern="#,##0.00" /></div>
+                                            <small class="text-muted">Completed</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="transaction-item debit">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">${transaction.description}</h6>
+                                            <small><fmt:formatDate value="${transaction.timestamp}" pattern="MMM dd ': at' HH:mm" /> • ${transaction.toAccount.user.fname}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-danger">-Rs. <fmt:formatNumber value="${transaction.amount}" pattern="#,##0.00" /></div>
+                                            <small class="text-muted">Completed</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+
+                    </c:forEach>
+
+
+
+
                 </div>
             </div>
         </div>
