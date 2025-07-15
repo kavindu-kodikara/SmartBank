@@ -287,7 +287,7 @@ transferLater.addEventListener('change', function() {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         const minDate = tomorrow.toISOString().split('T')[0];
-        document.getElementById('transferDate').min = minDate;
+
     }
 });
 

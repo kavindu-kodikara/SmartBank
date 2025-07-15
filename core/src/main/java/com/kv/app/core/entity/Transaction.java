@@ -15,7 +15,7 @@ import java.util.Date;
                 name = "Transaction.findByAccountNumber",
                 query = "SELECT t FROM Transaction t " +
                         "WHERE t.fromAccount.accountNumber = :accNumber OR t.toAccount.accountNumber = :accNumber " +
-                        "ORDER BY t.timestamp ASC"
+                        "ORDER BY t.timestamp DESC"
         )
 
 })

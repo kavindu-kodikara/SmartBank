@@ -22,6 +22,12 @@ public class InterestRecord implements Serializable {
     public InterestRecord() {
     }
 
+    public InterestRecord(Date date, Double amount, Account account) {
+        this.date = date;
+        this.amount = amount;
+        this.account = account;
+    }
+
     public Long getId() {
         return id;
     }

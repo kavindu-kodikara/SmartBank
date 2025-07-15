@@ -15,6 +15,8 @@ public class ScheduledTransfer implements Serializable {
     private Date scheduledDateTime;
     @Column(name = "amount")
     private Double amount;
+    @Column(name = "description")
+    private String description;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -73,5 +75,13 @@ public class ScheduledTransfer implements Serializable {
 
     public void setToAccount(Account toAccount) {
         this.toAccount = toAccount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

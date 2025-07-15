@@ -1,3 +1,11 @@
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="com.kv.app.core.service.user.UserSchedulTransactionService" %>
+<%@ page import="javax.naming.NamingException" %>
+<%@ page import="com.kv.app.core.entity.ScheduledTransfer" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.kv.app.core.entity.User" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%--
   Created by IntelliJ IDEA.
   User: kv
@@ -517,71 +525,63 @@
         </div>
     </div>
 
+    <%
+        User user = (User) request.getSession().getAttribute("user");
+        InitialContext ic = new InitialContext();
+
+        try {
+            UserSchedulTransactionService userSchedulTransactionService = (UserSchedulTransactionService) ic.lookup("java:global/smart-bank-ear/user-module/ScheduleTransactionSessionBean!com.kv.app.core.service.user.UserSchedulTransactionService");
+            List<ScheduledTransfer> scheduledList = userSchedulTransactionService.getPendingScheduledTransfers(user.getId());
+            pageContext.setAttribute("scheduledList", scheduledList);
+
+            List<ScheduledTransfer> pastScheduledList = userSchedulTransactionService.getPastScheduledTransfers(user.getId());
+            pageContext.setAttribute("pastScheduledList", pastScheduledList);
+
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    %>
+
     <!-- Scheduled Transfers List -->
     <div class="row">
         <div class="col-12">
             <div class="card fade-in" style="animation-delay: 0.2s;">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-clock me-2 text-primary"></i> Upcoming Scheduled Transfers</h5>
-                    <span class="badge bg-primary">5 Scheduled</span>
+                    <span class="badge bg-primary">${scheduledList.size()} Scheduled</span>
                 </div>
                 <div class="card-body">
                     <!-- Recurring Payment -->
-                    <div class="scheduled-item recurring mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="mb-1">Rent Payment</h5>
-                                <p class="mb-2 text-muted">To: FutureHomes Properties • Account: ****3456</p>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-light text-dark me-2 mb-1">
-                                        <i class="fas fa-wallet me-1"></i> From: Primary Checking
-                                    </span>
-                                    <span class="badge bg-light text-dark mb-1">
-                                        <i class="fas fa-clock me-1"></i> Next: June 20, 2023
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <div>
-                                    <h4 class="mb-2">$1,250.00</h4>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                    </div>
+                    <c:forEach var="schedule" items="${scheduledList}">
+                        <div class="scheduled-item recurring mb-3">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h5 class="mb-1">${schedule.description}</h5>
+                                                    <p class="mb-2 text-muted">To: ${schedule.toAccount.user.fname} • Account: ****${schedule.toAccount.accountNumber.substring(schedule.toAccount.accountNumber.length() - 4)}</p>
+                                                    <div class="d-flex flex-wrap">
+                                                        <span class="badge bg-light text-dark me-2 mb-1">
+                                                            <i class="fas fa-wallet me-1"></i> From: Account: ****${schedule.fromAccount.accountNumber.substring(schedule.fromAccount.accountNumber.length() - 4)}
+                                                        </span>
+                                                        <span class="badge bg-light text-dark mb-1">
+                                                            <i class="fas fa-clock me-1"></i> Next: <fmt:formatDate value="${schedule.scheduledDateTime}" pattern="MMM dd , HH:mm" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div>
+                                                        <h4 class="mb-2">Rs. <fmt:formatNumber value="${schedule.amount}" pattern="#,##0.00" /></h4>
+                                                    </div>
+                                                    <div class="d-flex justify-content-end">
+                                                        <button class="btn btn-danger btn-sm">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                    <div class="scheduled-item recurring mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="mb-1">Rent Payment</h5>
-                                <p class="mb-2 text-muted">To: FutureHomes Properties • Account: ****3456</p>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-light text-dark me-2 mb-1">
-                                        <i class="fas fa-wallet me-1"></i> From: Primary Checking
-                                    </span>
-                                    <span class="badge bg-light text-dark mb-1">
-                                        <i class="fas fa-clock me-1"></i> Next: June 20, 2023
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <div>
-                                    <h4 class="mb-2">$1,250.00</h4>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                                        </div>
+                    </c:forEach>
                 </div>
             </div>
         </div>
@@ -605,47 +605,40 @@
                 </div>
                 <div class="card-body">
                     <!-- Completed Transfer -->
-                    <div class="scheduled-item one-time mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="mb-1">Gift to Sarah</h5>
-                                <p class="mb-2 text-muted">To: Sarah Johnson • Account: ****4521</p>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-light text-dark me-2 mb-1">
-                                        <i class="fas fa-wallet me-1"></i> From: Primary Checking
-                                    </span>
-                                    <span class="badge bg-light text-dark mb-1">
-                                        <i class="fas fa-check-circle me-1"></i> Completed: May 10, 2023
-                                    </span>
+
+                    <c:forEach var="pastSchedule" items="${pastScheduledList}">
+                        <c:choose>
+                            <c:when test="${pastSchedule.status == 'SUCCEEDED'}">
+                                <div class="scheduled-item one-time mb-3">
+                            </c:when>
+                            <c:otherwise>
+                                <div class="scheduled-item recurring cancelled">
+                            </c:otherwise>
+                        </c:choose>
+
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1">${pastSchedule.description}</h5>
+                                    <p class="mb-2 text-muted">To: ${pastSchedule.toAccount.user.fname} • Account: ****${pastSchedule.toAccount.accountNumber.substring(pastSchedule.toAccount.accountNumber.length() - 4)}</p>
+                                    <div class="d-flex flex-wrap">
+                                                        <span class="badge bg-light text-dark me-2 mb-1">
+                                                            <i class="fas fa-wallet me-1"></i> From: Account: ****${pastSchedule.fromAccount.accountNumber.substring(pastSchedule.fromAccount.accountNumber.length() - 4)}
+                                                        </span>
+                                        <span class="badge bg-light text-dark mb-1">
+                                                            <i class="fas fa-clock me-1"></i> Completed: <fmt:formatDate value="${pastSchedule.scheduledDateTime}" pattern="MMM dd , HH:mm" />
+                                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div>
+                                        <h4 class="mb-2">Rs. <fmt:formatNumber value="${pastSchedule.amount}" pattern="#,##0.00" /></h4>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="text-end">
-                                <h4 class="mb-2">$100.00</h4>
 
-                            </div>
                         </div>
-                    </div>
+                    </c:forEach>
 
-                    <!-- Cancelled Transfer -->
-                    <div class="scheduled-item recurring cancelled">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="mb-1">Gym Membership</h5>
-                                <p class="mb-2 text-muted">To: Fitness Center • Account: ****6732</p>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-light text-dark me-2 mb-1">
-                                        <i class="fas fa-wallet me-1"></i> From: Primary Checking
-                                    </span>
-                                    <span class="badge bg-light text-dark mb-1">
-                                        <i class="fas fa-times-circle me-1"></i> Cancelled: April 15, 2023
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <h4 class="mb-2">$65.00</h4>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

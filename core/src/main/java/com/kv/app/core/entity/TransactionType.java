@@ -1,5 +1,5 @@
 package com.kv.app.core.entity;
 
 public enum TransactionType {
-    DEPOSIT, TRANSFER, WITHDRAW
+    DEPOSIT, TRANSFER, WITHDRAW, INTEREST
 }

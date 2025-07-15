@@ -831,12 +831,18 @@
                     iconHtml = '<i class="fas fa-exchange-alt"></i>';
                 } else {
                     iconHtml = '<i class="fas fa-dollar-sign"></i>';
+
                 }
 
                 let userHtml = "";
 
                 if (tx.toAccount == selectedAccount) {
-                    userHtml = '<small>From '+tx.fromUserFname+' • <span class="badge transaction-type-badge badge-external">' + tx.transactionType + '</span></small>';
+                    if(tx.fromUserFname){
+                        userHtml = '<small>From '+tx.fromUserFname+' • <span class="badge transaction-type-badge badge-external">' + tx.transactionType + '</span></small>';
+                    }else{
+                        userHtml = '<small>From Bank • <span class="badge transaction-type-badge badge-internal">' + tx.transactionType + '</span></small>';
+                        iconHtml = '<i class="fas fa-percentage"></i>';
+                    }
                 } else {
                     userHtml = '<small>To '+tx.toUserFname+' • <span class="badge transaction-type-badge badge-external">' + tx.transactionType + '</span></small>';
                 }
@@ -856,7 +862,7 @@
                     '</div>' +
                     '</div>' +
                     '<div class="text-end">' +
-                    '<div class="fw-bold '+amountColor+'">Rs. ' + amountPrefix + tx.amount + '.00</div>' +
+                    '<div class="fw-bold '+amountColor+'">Rs. ' + amountPrefix + tx.amount + '</div>' +
                     '<small class="text-muted">Completed • '+ formatTime(tx.timestamp) +'</small>' +
                     '</div>' +
                     '</div>' +

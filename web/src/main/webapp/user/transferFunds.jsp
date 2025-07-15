@@ -673,11 +673,11 @@
                         <div class="row">
                             <div class="col-5">
                                 <label for="transferDate" class="form-label">Transfer Date</label>
-                                <input type="date" class="form-control" id="transferDate" min="">
+                                <input type="date" class="form-control" id="transferDate" >
                             </div>
                             <div class="col-5 offset-1">
                                 <label for="transferDate" class="form-label">Transfer Time</label>
-                                <input type="time" class="form-control" id="transferTime" min="">
+                                <input type="time" class="form-control" id="transferTime" >
                             </div>
                         </div>
                     </div>
