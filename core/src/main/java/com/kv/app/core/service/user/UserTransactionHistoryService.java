@@ -8,4 +8,5 @@ import java.util.Map;
 public interface UserTransactionHistoryService {
     public Map<String,Object> getRecentTransactions(Long userId);
     public String getAllTransactions(Long userId);
+    public Transaction getTransaction(Long transactionId);
 }

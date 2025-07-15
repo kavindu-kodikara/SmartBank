@@ -1,8 +1,10 @@
 package com.kv.app.auth;
 
 import com.kv.app.core.entity.UserType;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;

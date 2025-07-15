@@ -2,13 +2,16 @@ package com.kv.app.transaction;
 
 import com.kv.app.core.entity.Account;
 import com.kv.app.core.exception.InsufficientBalanceException;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.AccountService;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 
 @Stateless
+@Interceptors({AuditLogInterceptor.class})
 public class AccountSessionBean implements AccountService {
 
     @PersistenceContext

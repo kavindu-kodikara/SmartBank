@@ -1,14 +1,17 @@
 package com.kv.app.auth;
 
 import com.kv.app.core.entity.User;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.OTPService;
 import com.kv.app.core.service.user.UserService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 import java.util.Map;
 
 @Stateless
+@Interceptors({AuditLogInterceptor.class})
 public class OTPSessionBean implements OTPService {
 
     @EJB

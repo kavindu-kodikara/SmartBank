@@ -226,7 +226,7 @@ async function externalTransferFunction() {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                window.location.reload();
+                window.open("http://localhost:8080/SmartBank/user/transactionReceipt.jsp?id="+json.id);
             });
         }else{
             Swal.fire({

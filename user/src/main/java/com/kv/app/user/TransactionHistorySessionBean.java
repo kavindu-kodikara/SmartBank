@@ -82,4 +82,9 @@ public class TransactionHistorySessionBean implements UserTransactionHistoryServ
         return gson.toJson(transactionMap);
     }
 
+    @Override
+    public Transaction getTransaction(Long transactionId) {
+        return em.find(Transaction.class, transactionId);
+    }
+
 }

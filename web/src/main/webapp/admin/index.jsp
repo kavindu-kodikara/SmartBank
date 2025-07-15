@@ -1,4 +1,12 @@
-<%--
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="com.kv.app.core.service.admin.AdminDashboardService" %>
+<%@ page import="javax.naming.NamingException" %>
+<%@ page import="com.kv.app.core.dto.AdminDashboardDataDto" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.kv.app.core.entity.User" %>
+<%@ page import="com.kv.app.core.entity.Account" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><%--
   Created by IntelliJ IDEA.
   User: kv
   Date: 7/7/2025
@@ -504,6 +512,25 @@
         </div>
     </div>
 
+    <%
+
+        try {
+
+            InitialContext ic = new InitialContext();
+            AdminDashboardService adminDashboardService = (AdminDashboardService) ic.lookup("java:global/smart-bank-ear/admin-module/AdminDashboardSessionBean!com.kv.app.core.service.admin.AdminDashboardService");
+            AdminDashboardDataDto dashboardData = adminDashboardService.getDashboardData();
+            List<User> userList = adminDashboardService.getAllUsers();
+            List<Account> accountList = adminDashboardService.getAllAccounts();
+            request.setAttribute("dashboardData",dashboardData);
+            request.setAttribute("userList",userList);
+            request.setAttribute("accountList",accountList);
+
+        }catch (NamingException e){
+            throw new RuntimeException(e);
+        }
+
+    %>
+
     <!-- Tab Content -->
     <div class="tab-content">
         <!-- Dashboard Tab -->
@@ -514,32 +541,32 @@
                     <div class="stat-card users floating">
                         <i class="fas fa-users"></i>
                         <h5>Total Users</h5>
-                        <div class="stat-value">1,248</div>
-                        <small>+12 this week</small>
+                        <div class="stat-value"><fmt:formatNumber value="${dashboardData.totUsers}" pattern="#,##0" /></div>
+                        <small>Smart Bank</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card accounts floating" style="animation-delay: 0.2s;">
                         <i class="fas fa-wallet"></i>
                         <h5>Active Accounts</h5>
-                        <div class="stat-value">2,456</div>
-                        <small>+24 this week</small>
+                        <div class="stat-value"><fmt:formatNumber value="${dashboardData.totAccounts}" pattern="#,##0" /></div>
+                        <small>Smart Bank</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card transactions floating" style="animation-delay: 0.4s;">
                         <i class="fas fa-exchange-alt"></i>
                         <h5>Transactions</h5>
-                        <div class="stat-value">8,742</div>
-                        <small>+342 today</small>
+                        <div class="stat-value"><fmt:formatNumber value="${dashboardData.totTransactions}" pattern="#,##0" /></div>
+                        <small>Smart Bank</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card balance floating" style="animation-delay: 0.6s;">
                         <i class="fas fa-dollar-sign"></i>
                         <h5>Total Balance</h5>
-                        <div class="stat-value">$48.2M</div>
-                        <small>+$1.2M this month</small>
+                        <div class="stat-value">Rs. ${dashboardData.totBalances}</div>
+                        <small>Smart Bank</small>
                     </div>
                 </div>
             </div>
@@ -620,70 +647,28 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>1001</td>
-                            <td>John Doe</td>
-                            <td>john.doe@example.com</td>
-                            <td>+1 555-123-4567</td>
-                            <td>1234567890</td>
-                            <td>2</td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1002</td>
-                            <td>Jane Smith</td>
-                            <td>jane.smith@example.com</td>
-                            <td>+1 555-987-6543</td>
-                            <td>0987654321</td>
-                            <td>1</td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1003</td>
-                            <td>Robert Johnson</td>
-                            <td>robert.j@example.com</td>
-                            <td>+1 555-456-7890</td>
-                            <td>4567890123</td>
-                            <td>3</td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
+
+
+                        <c:forEach var="user" items="${userList}">
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.fname} ${user.lname}</td>
+                                <td>${user.email}</td>
+                                <td>${user.mobile}</td>
+                                <td>${user.nic}</td>
+                                <td>${user.accounts.size()}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-admin">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </c:forEach>
+
                         </tbody>
                     </table>
                 </div>
-                <nav aria-label="Page navigation" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
+
             </div>
         </div>
 
@@ -751,82 +736,25 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>•••• 4567</td>
-                            <td>Checking</td>
-                            <td>John Doe</td>
-                            <td>$12,456.78</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>•••• 8910</td>
-                            <td>Savings</td>
-                            <td>John Doe</td>
-                            <td>$24,789.32</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>•••• 1234</td>
-                            <td>Checking</td>
-                            <td>Jane Smith</td>
-                            <td>$8,345.67</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>•••• 5678</td>
-                            <td>Savings</td>
-                            <td>Robert Johnson</td>
-                            <td>$32,123.45</td>
-                            <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-admin">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <c:forEach var="account" items="${accountList}">
+                            <tr>
+                                <td>•••• ${account.accountNumber.substring(account.accountNumber.length() - 4)}</td>
+                                <td>Saving</td>
+                                <td>${account.user.fname} ${account.user.lname}</td>
+                                <td>Rs. <fmt:formatNumber value="${account.balance}" pattern="#,##0"/></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-admin">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </c:forEach>
+
                         </tbody>
                     </table>
                 </div>
-                <nav aria-label="Page navigation" class="mt-3">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
+
             </div>
         </div>
     </div>

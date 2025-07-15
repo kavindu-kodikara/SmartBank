@@ -5,12 +5,14 @@ import com.kv.app.core.entity.Account;
 import com.kv.app.core.entity.Transaction;
 import com.kv.app.core.entity.TransactionType;
 import com.kv.app.core.exception.InvalidAccountException;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.AccountService;
 import com.kv.app.core.service.TransactionService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -18,6 +20,7 @@ import java.util.Date;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
+@Interceptors({AuditLogInterceptor.class})
 public class TransactionSessionBean implements TransactionService {
 
     @EJB
@@ -42,7 +45,7 @@ public class TransactionSessionBean implements TransactionService {
     }
 
     @Override
-    public void externalTransaction(TransactionDataDto transactionData) {
+    public String externalTransaction(TransactionDataDto transactionData) {
 
         Account account = em.find(Account.class, transactionData.getToAccount());
         if(account == null) {
@@ -57,5 +60,7 @@ public class TransactionSessionBean implements TransactionService {
         Transaction transaction = new Transaction(new Date(), transactionData.getAmount(), TransactionType.TRANSFER, transactionData.getDescription(), fromAccount,toAccount);
 
         em.persist(transaction);
+        em.flush();
+        return String.valueOf(transaction.getId());
     }
 }

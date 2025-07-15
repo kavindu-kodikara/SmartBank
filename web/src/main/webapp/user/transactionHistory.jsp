@@ -850,7 +850,7 @@
                 let typeHtml = typeClass === "credit" ? '<div class="transaction-item credit">' : '<div class="transaction-item debit">';
 
                 const transactionHtml =
-                    '<div class="transaction-item '+typeClass+'">' +
+                    '<div class="transaction-item ' + typeClass + '" onclick="window.open(\'http://localhost:8080/SmartBank/user/transactionReceipt.jsp?id=' + tx.id + '\', \'_blank\')">' +
                     '<div class="d-flex justify-content-between align-items-center">' +
                     '<div class="transaction-details">' +
                     '<div class="transaction-icon '+typeClass+'">' +

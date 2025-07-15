@@ -4,10 +4,12 @@ import com.kv.app.core.dto.TransactionDataDto;
 import com.kv.app.core.entity.Account;
 import com.kv.app.core.entity.ScheduledTransfer;
 import com.kv.app.core.entity.Status;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.ScheduleTransactionService;
 import com.kv.app.core.service.TransactionService;
 import jakarta.annotation.Resource;
 import jakarta.ejb.*;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -17,6 +19,7 @@ import java.util.Date;
 
 @Singleton
 @Startup
+@Interceptors({AuditLogInterceptor.class})
 public class ScheduleTransactionTimer implements ScheduleTransactionService {
 
     @EJB

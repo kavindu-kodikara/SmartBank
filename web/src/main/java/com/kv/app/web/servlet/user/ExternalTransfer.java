@@ -26,6 +26,7 @@ public class ExternalTransfer extends HttpServlet {
 
             Gson gson = new Gson();
             String message = "success";
+            String id = "";
             boolean success = false;
             TransactionDataDto transactionData = gson.fromJson(req.getReader(), TransactionDataDto.class);
 
@@ -36,7 +37,7 @@ public class ExternalTransfer extends HttpServlet {
                     && !transactionData.getDescription().isEmpty()) {
 
                 try {
-                    transactionService.internalTransaction(transactionData);
+                    id = transactionService.externalTransaction(transactionData);
                     success = true;
                 }catch (IllegalArgumentException | InsufficientBalanceException | InvalidAccountException e){
                     message = e.getMessage();
@@ -50,7 +51,8 @@ public class ExternalTransfer extends HttpServlet {
         resp.getWriter().write(gson.toJson(
                 Map.of(
                         "success", success,
-                        "message", message
+                        "message", message,
+                        "id", id
                 )
         ));
 
