@@ -49,7 +49,7 @@ public class LoginService {
         user.setVerificationCode(String.valueOf(code));
         em.persist(user);
 
-//        OTPEmail mail = new OTPEmail(user.getEmail(), String.valueOf(code));
-//        MailServiceProvider.getInstance().sendMail(mail);
+        OTPEmail mail = new OTPEmail(user.getEmail(), String.valueOf(code));
+        MailServiceProvider.getInstance().sendMail(mail);
     }
 }
