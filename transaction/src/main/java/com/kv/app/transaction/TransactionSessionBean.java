@@ -9,10 +9,7 @@ import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.AccountService;
 import com.kv.app.core.service.TransactionService;
 import jakarta.annotation.security.PermitAll;
-import jakarta.ejb.EJB;
-import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionAttribute;
-import jakarta.ejb.TransactionAttributeType;
+import jakarta.ejb.*;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -21,6 +18,7 @@ import java.util.Date;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
+@ApplicationException(rollback = true)
 @Interceptors({AuditLogInterceptor.class})
 @PermitAll
 public class TransactionSessionBean implements TransactionService {

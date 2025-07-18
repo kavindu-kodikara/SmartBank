@@ -9,6 +9,8 @@ import com.kv.app.core.service.user.UserTransactionHistoryService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Stateless
 @RolesAllowed("USER")
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class TransactionHistorySessionBean implements UserTransactionHistoryService {
 
     @PersistenceContext
