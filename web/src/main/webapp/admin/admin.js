@@ -111,3 +111,60 @@ document.getElementById("registerBtn").addEventListener("click", async function 
     }
 
 });
+
+document.getElementById("depositBtn").addEventListener("click", async function (event) {
+
+    const depositAmount = document.getElementById("depositAmount").value;
+    const accountNumber = document.getElementById("accountNumber").value;
+
+    if(accountNumber == ""){
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Please enter accountNumber",
+        })
+        return;
+    }
+
+    if(depositAmount == ""){
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Please enter depositAmount",
+        })
+        return;
+    }
+
+    const response = await fetch("http://localhost:8080/SmartBank/admin/deposit", {
+        method: "POST",
+        body: JSON.stringify({
+            accountNumber: accountNumber,
+            depositAmount: depositAmount,
+        }),
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+
+    if(response.ok) {
+        const json = await response.json();
+        console.log(json);
+
+        if(json) {
+            Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: "Deposit successfully",
+            }).then((result) => {
+                window.location.reload();
+            });
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong",
+            })
+        }
+    }
+
+});

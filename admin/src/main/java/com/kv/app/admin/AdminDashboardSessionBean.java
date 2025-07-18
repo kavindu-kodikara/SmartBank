@@ -1,17 +1,22 @@
 package com.kv.app.admin;
 
 import com.kv.app.core.dto.AdminDashboardDataDto;
-import com.kv.app.core.entity.Account;
-import com.kv.app.core.entity.User;
-import com.kv.app.core.entity.UserType;
+import com.kv.app.core.entity.*;
+import com.kv.app.core.interceptor.AuditLogInterceptor;
+import com.kv.app.core.service.TransactionService;
 import com.kv.app.core.service.admin.AdminDashboardService;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+import java.util.Date;
 import java.util.List;
 
 @Stateless
+@RolesAllowed("ADMIN")
 public class AdminDashboardSessionBean implements AdminDashboardService {
 
     @PersistenceContext
@@ -38,6 +43,27 @@ public class AdminDashboardSessionBean implements AdminDashboardService {
     @Override
     public List<Account> getAllAccounts() {
         return em.createQuery("SELECT a FROM Account a", Account.class).getResultList();
+    }
+
+
+    @Override
+    @Interceptors({AuditLogInterceptor.class})
+    public boolean deposit(String accountId, double amount) {
+
+        Account account = em.find(Account.class, accountId);
+        if(account == null) {
+            return false;
+        }
+
+        account.setBalance(account.getBalance() + amount);
+
+        Transaction transaction = new Transaction(new Date(), amount, TransactionType.DEPOSIT,"Bank deposit",null,account);
+
+        em.merge(account);
+        em.persist(transaction);
+
+        return true;
+
     }
 
     public String formatBalance(double number) {

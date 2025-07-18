@@ -8,6 +8,7 @@ import com.kv.app.core.exception.InvalidAccountException;
 import com.kv.app.core.interceptor.AuditLogInterceptor;
 import com.kv.app.core.service.AccountService;
 import com.kv.app.core.service.TransactionService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -21,6 +22,7 @@ import java.util.Date;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 @Interceptors({AuditLogInterceptor.class})
+@PermitAll
 public class TransactionSessionBean implements TransactionService {
 
     @EJB

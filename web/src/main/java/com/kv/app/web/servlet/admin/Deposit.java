@@ -1,8 +1,9 @@
 package com.kv.app.web.servlet.admin;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kv.app.core.dto.UserDto;
-import com.kv.app.core.service.user.UserService;
+import com.kv.app.core.service.admin.AdminDashboardService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -14,35 +15,27 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@WebServlet("/admin/user-register")
+@WebServlet("/admin/deposit")
 @RolesAllowed("ADMIN")
-public class UserRegister extends HttpServlet {
+public class Deposit extends HttpServlet {
 
     @EJB
-    UserService userService;
+    AdminDashboardService adminDashboardService;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         Gson gson = new Gson();
-        Map<String,Object> respMap;
+        boolean success = false;
+        JsonObject jsonObject = gson.fromJson(req.getReader(), JsonObject.class);
+        String accountNumber = jsonObject.get("accountNumber").getAsString();
+        String amount = jsonObject.get("depositAmount").getAsString();
 
-        UserDto userDto = gson.fromJson(req.getReader(), UserDto.class);
-
-        if(userDto.getFirstName() != null
-                && userDto.getLastName() != null
-                && userDto.getEmail() != null
-                && userDto.getMobile() != null
-                && userDto.getNic() != null) {
-
-            respMap = userService.registerUser(userDto);
-
-        }else{
-            respMap = Map.of("success", false, "message", "Invalid credentials");
+        if(!accountNumber.isEmpty() && !amount.isEmpty()) {
+            success = adminDashboardService.deposit(accountNumber, Double.parseDouble(amount));
         }
-
         resp.setContentType("application/json");
-        resp.getWriter().write(gson.toJson(respMap));
+        resp.getWriter().write(gson.toJson(success));
 
     }
 }

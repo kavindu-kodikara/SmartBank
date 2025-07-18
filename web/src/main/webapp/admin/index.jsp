@@ -680,7 +680,7 @@
                         <h4 class="mb-4 text-center" style="color: var(--admin-primary);">
                             <i class="fas fa-money-bill-wave me-2"></i> Deposit Funds to Account
                         </h4>
-                        <form id="depositFundsForm">
+                        <div id="depositFundsForm">
                             <div class="mb-3">
                                 <label for="accountNumber" class="form-label">Account Number</label>
                                 <input type="text" class="form-control" id="accountNumber" required>
@@ -693,19 +693,15 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="depositDescription" class="form-label">Description</label>
+                                <label for="depositDescription" class="form-label">Description (Optional)</label>
                                 <input type="text" class="form-control" id="depositDescription" placeholder="e.g., Initial deposit, Bonus, etc.">
                             </div>
-                            <div class="mb-3">
-                                <label for="depositReceipt" class="form-label">Upload Receipt (Optional)</label>
-                                <input type="file" class="form-control" id="depositReceipt">
-                            </div>
                             <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-admin px-5">
+                                <button id="depositBtn" class="btn btn-admin px-5">
                                     <i class="fas fa-plus-circle me-2"></i> Deposit Funds
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

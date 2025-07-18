@@ -10,4 +10,5 @@ public interface AdminDashboardService {
     public AdminDashboardDataDto getDashboardData();
     public List<User> getAllUsers();
     public List<Account> getAllAccounts();
+    public boolean deposit(String accountId, double amount);
 }

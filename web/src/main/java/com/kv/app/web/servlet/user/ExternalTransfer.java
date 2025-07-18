@@ -5,6 +5,7 @@ import com.kv.app.core.dto.TransactionDataDto;
 import com.kv.app.core.exception.InsufficientBalanceException;
 import com.kv.app.core.exception.InvalidAccountException;
 import com.kv.app.core.service.TransactionService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @WebServlet("/externalTransfer")
+@RolesAllowed("USER")
 public class ExternalTransfer extends HttpServlet {
 
     @EJB

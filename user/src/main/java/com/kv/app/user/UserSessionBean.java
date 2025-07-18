@@ -9,6 +9,7 @@ import com.kv.app.core.entity.User;
 import com.kv.app.core.mail.MailServiceProvider;
 import com.kv.app.core.mail.emails.AccountSetupEmail;
 import com.kv.app.core.service.user.UserService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Stateless
+@PermitAll
 public class UserSessionBean implements UserService {
 
     @PersistenceContext

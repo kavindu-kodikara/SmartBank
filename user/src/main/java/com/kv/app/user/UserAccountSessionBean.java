@@ -3,6 +3,7 @@ package com.kv.app.user;
 import com.kv.app.core.entity.Account;
 import com.kv.app.core.entity.User;
 import com.kv.app.core.service.user.UserAccountService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -10,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 @Stateless
+@RolesAllowed("USER")
 public class UserAccountSessionBean implements UserAccountService {
 
     @PersistenceContext
