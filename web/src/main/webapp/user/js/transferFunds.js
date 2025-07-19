@@ -197,7 +197,8 @@ async function externalTransferFunction() {
             return;
         }
     }
-
+console.log(transferTime);
+console.log(transferDate);
     const responce = await fetch("http://localhost:8080/SmartBank" + (isScheduled ? "/scheduled/externalTransfer" : "/externalTransfer"), {
         method: "POST",
         body: JSON.stringify({
@@ -219,15 +220,27 @@ async function externalTransferFunction() {
         console.log(json);
 
         if(json.success){
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "Transaction successful!",
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                window.open("http://localhost:8080/SmartBank/user/transactionReceipt.jsp?id="+json.id);
-            });
+            if(!isScheduled){
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Transaction successful!",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.open("http://localhost:8080/SmartBank/user/transactionReceipt.jsp?id="+json.id);
+                });
+            }else{
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Transaction successful!",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
         }else{
             Swal.fire({
                 icon: "error",
