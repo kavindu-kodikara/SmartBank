@@ -26,7 +26,7 @@ public class AccountSessionBean implements AccountService {
             throw new IllegalArgumentException("Amount must be greater than 10");
         }
 
-        Account account = em.find(Account.class, accountNumber, LockModeType.PESSIMISTIC_WRITE);
+        Account account = em.find(Account.class, accountNumber);
         account.setBalance(account.getBalance() + amount);
         em.merge(account);
     }
@@ -34,13 +34,13 @@ public class AccountSessionBean implements AccountService {
     @Override
     public void debit(String accountNumber, Double amount) {
 
-        Account account = em.find(Account.class, accountNumber, LockModeType.PESSIMISTIC_WRITE);
+        Account account = em.find(Account.class, accountNumber);
 
         if(amount < 10){
             throw new IllegalArgumentException("Amount must be greater than 10");
         }
 
-        if(account.getBalance() < amount+1000){
+        if(account.getBalance() < amount){
             throw new InsufficientBalanceException("Insufficient balance");
         }
 

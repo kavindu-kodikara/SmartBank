@@ -12,6 +12,7 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.*;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.Date;
@@ -32,11 +33,12 @@ public class TransactionSessionBean implements TransactionService {
     @Override
     public void internalTransaction(TransactionDataDto transactionData) {
 
+        Account fromAccount = em.find(Account.class, transactionData.getFromAccount(),LockModeType.PESSIMISTIC_WRITE);
+        Account toAccount = em.find(Account.class, transactionData.getToAccount(),LockModeType.PESSIMISTIC_WRITE);
+
         accountService.debit(transactionData.getFromAccount(), transactionData.getAmount());
         accountService.credit(transactionData.getToAccount(), transactionData.getAmount());
 
-        Account fromAccount = em.find(Account.class, transactionData.getFromAccount());
-        Account toAccount = em.find(Account.class, transactionData.getToAccount());
 
         Transaction transaction = new Transaction(new Date(), transactionData.getAmount(), TransactionType.TRANSFER,transactionData.getDescription(),fromAccount,toAccount);
 
@@ -44,10 +46,11 @@ public class TransactionSessionBean implements TransactionService {
 
     }
 
+    @Lock
     @Override
     public String externalTransaction(TransactionDataDto transactionData) {
 
-        Account account = em.find(Account.class, transactionData.getToAccount());
+        Account account = em.find(Account.class, transactionData.getToAccount(), LockModeType.PESSIMISTIC_WRITE);
         if(account == null) {
             throw new InvalidAccountException("Account not found");
         }
