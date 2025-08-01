@@ -24,7 +24,11 @@ The project is packaged as an **EAR (Enterprise Archive)** with multiple modules
 
 The project focuses heavily on backend architecture, security, concurrency handling, and **time-sensitive EJB operations**.
 
----
+> *Click the image below to watch the full walkthrough video.*
+
+[![Auction System Tutorial](img/img1.png)](https://youtu.be/oRse2fLKgzI?si=Sd45Vkean52HwN7g)
+</br></br>
+
 
 ---
 
