@@ -1,4 +1,4 @@
-#Smart Bank - Enterprise Banking System (J2EE)
+# Smart Bank - Enterprise Banking System (J2EE)
 
 ## Overview
 **Smart Bank** is a **J2EE-based enterprise banking system** built to demonstrate advanced backend development skills for **secure, scalable, and transactionally consistent financial applications**.  
