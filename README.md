@@ -84,14 +84,6 @@ smart-bank-ear/
 
 ---
 
-## 🧪 Testing & Reliability
-- Functional testing via **Postman** for REST endpoints.
-- Load & performance testing using **JMeter**.
-- Transaction reliability testing for high-concurrency scenarios.
-- Timer tasks monitored through application server logs and manual validation.
-
----
-
 ## 🛠️ Technologies & Tools
 - **Backend**: Java EE (EJB, JPA, CDI, JSR 375 Security)
 - **Application Server**: GlassFish / Payara
